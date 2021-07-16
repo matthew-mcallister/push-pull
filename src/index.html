@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Push 'n' Pull</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style type="text/css">
+        .table td {
+            vertical-align: middle;
+        }
+        .table th {
+            vertical-align: middle;
+        }
+    </style>
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <p class="title">I am...</p>
+          </div>
+          <div class="level-item">
+            <div class="control">
+              <div class="select">
+                <select>
+                  <option>Matthew McAllister</option>
+                  <option>Bob Anderson</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <p class="subtitle">Take me to block...</p>
+          </div>
+          <div class="level-item">
+            <div class="control">
+              <div class="select is-small">
+                <select>
+                  <option>Mon I</option>
+                  <option>Mon II</option>
+                  <option>Tue I</option>
+                  <option>Tue II</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>From/To</th>
+            <th>Requestor</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>13001</th>
+            <td>Joe Schmoe</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr
+            class="has-background-danger-light has-text-danger"
+            style="td { vertical-align: middle; }"
+          >
+            <th class="has-text-danger">13002</th>
+            <td><s>Jane Schmane<s></td>
+            <td><p>To <b>Paul York</b></p></td>
+            <td><b>Paul York</b></td>
+            <td><span class="tag is-info is-light">Pending</span></td>
+            <td>
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-small is-success is-outlined">
+                    Approve
+                  </a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-danger is-outlined">
+                    Deny
+                  </a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="has-background-danger has-text-white">
+            <th class="has-text-white">13003</th>
+            <td><s>John Schmon<s></td>
+            <td><p>To <b>Jennifer Sprague</b></p></td>
+            <td><b>You</b></td>
+            <td><span class="tag is-success is-light">Approved</span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>13004</th>
+            <td>Joan Schmoan</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>13005</th>
+            <td>Jim Schmim</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr class="has-background-info has-text-white">
+            <th class="has-text-white">13006</th>
+            <td>Jean Schmean</td>
+            <td><p>From <b>Bob Cunningham</b></p></td>
+            <td><b>Bob Cunningham</b></td>
+            <td><span class="tag is-success is-light">Approved</span></td>
+            <td></td>
+          </tr>
+          <tr class="has-background-info-light has-text-info">
+            <th class="has-text-info">13007</th>
+            <td>Jed Schmed</td>
+            <td><p>From <b>Daniel Rupp</b></p></td>
+            <td><b>You</b></td>
+            <td><span class="tag is-info is-light">Pending</span></td>
+            <td>
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-small is-success is-outlined">
+                    Approve
+                  </a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-danger is-outlined">
+                    Deny
+                  </a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>13008</th>
+            <td>Janet Schmanet</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  </body>
+</html>
