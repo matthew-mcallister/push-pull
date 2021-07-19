@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Push 'n' Pull</title>
+    <title>Push 'n' Pull - Corey Helgesen - 2:00</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link href="/Font-Awesome/css/all.css" rel="stylesheet">
     <style type="text/css">
         .table td {
             vertical-align: middle;
@@ -14,56 +15,66 @@
         }
     </style>
   </head>
+
   <body>
-  <section class="section">
-    <div class="container">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <p class="title">I am...</p>
-          </div>
-          <div class="level-item">
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item"><span class="is-size-4"><b>Push 'n' Pull</b></span></a>
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="field has-addons">
+            <div class="control">
+              <a class="button is-static">I am</a>
+            </div>
             <div class="control">
               <div class="select">
                 <select>
-                  <option>Matthew McAllister</option>
+                  <option>Corey Helgesen</option>
                   <option>Bob Anderson</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <p class="subtitle">Take me to block...</p>
-          </div>
-          <div class="level-item">
+        <div class="navbar-item">
+          <div class="field has-addons">
             <div class="control">
-              <div class="select is-small">
+              <a class="button is-static">Block</a>
+            </div>
+            <div class="control">
+              <div class="select">
                 <select>
-                  <option>Mon I</option>
-                  <option>Mon II</option>
-                  <option>Tue I</option>
-                  <option>Tue II</option>
+                  <option>Monday 2:00</option>
+                  <option>Monday 2:45</option>
+                  <option>Wednesday 2:00</option>
+                  <option>Wednesday 2:45</option>
+                  <option>Friday 2:00</option>
+                  <option>Friday 2:45</option>
+                  <option>Tuesday 2:00</option>
+                  <option>Tuesday 2:45</option>
+                  <option>Thursday 2:00</option>
+                  <option>Thursday 2:45</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </nav>
 
+  <section class="section">
+    <div class="container">
+      <h1 class="title is-3">Corey Helgesen - Monday 2:00</h1>
       <table class="table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>From/To</th>
-            <th>Requestor</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th>Request</th>
+            <th>Requested by</th>
           </tr>
         </thead>
         <tbody>
@@ -72,46 +83,65 @@
             <td>Joe Schmoe</td>
             <td></td>
             <td></td>
-            <td></td>
-            <td></td>
           </tr>
-          <tr
-            class="has-background-danger-light has-text-danger"
-            style="td { vertical-align: middle; }"
-          >
-            <th class="has-text-danger">13002</th>
+          <tr>
+            <th>13002</th>
             <td><s>Jane Schmane<s></td>
-            <td><p>To <b>Paul York</b></p></td>
-            <td><b>Paul York</b></td>
-            <td><span class="tag is-info is-light">Pending</span></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
+                  <a class="button is-small is-danger">To</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small"><b>Paul York</b></a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-info is-light">Needs approval</a>
+                </div>
+                <div class="control">
                   <a class="button is-small is-success is-outlined">
-                    Approve
+                    <span class="icon"><i class="fas fa-check"></i></span>
                   </a>
                 </div>
                 <div class="control">
                   <a class="button is-small is-danger is-outlined">
-                    Deny
+                    <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
+            <td><b>Paul York</b></td>
+            <td>
+              <div class="field has-addons">
+              </div>
+            </td>
           </tr>
-          <tr class="has-background-danger has-text-white">
-            <th class="has-text-white">13003</th>
+          <tr>
+            <th>13003</th>
             <td><s>John Schmon<s></td>
-            <td><p>To <b>Jennifer Sprague</b></p></td>
-            <td><b>You</b></td>
-            <td><span class="tag is-success is-light">Approved</span></td>
-            <td></td>
+            <td>
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-small is-danger">To</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small"><b>Jennifer Sprague</b></a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-success is-light">Approved</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-danger is-outlined">
+                    <span class="icon"><i class="fas fa-times"></i></span>
+                  </a>
+                </div>
+              </div>
+            </td>
+            <td><b>Me</b></td>
           </tr>
           <tr>
             <th>13004</th>
             <td>Joan Schmoan</td>
-            <td></td>
-            <td></td>
             <td></td>
             <td></td>
           </tr>
@@ -120,37 +150,52 @@
             <td>Jim Schmim</td>
             <td></td>
             <td></td>
-            <td></td>
-            <td></td>
           </tr>
-          <tr class="has-background-info has-text-white">
-            <th class="has-text-white">13006</th>
+          <tr>
+            <th >13006</th>
             <td>Jean Schmean</td>
-            <td><p>From <b>Bob Cunningham</b></p></td>
-            <td><b>Bob Cunningham</b></td>
-            <td><span class="tag is-success is-light">Approved</span></td>
-            <td></td>
-          </tr>
-          <tr class="has-background-info-light has-text-info">
-            <th class="has-text-info">13007</th>
-            <td>Jed Schmed</td>
-            <td><p>From <b>Daniel Rupp</b></p></td>
-            <td><b>You</b></td>
-            <td><span class="tag is-info is-light">Pending</span></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
-                  <a class="button is-small is-success is-outlined">
-                    Approve
-                  </a>
+                  <a class="button is-small is-info">From</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small"><b>Bob Cunningham</b></a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-success is-light">Approved</a>
                 </div>
                 <div class="control">
                   <a class="button is-small is-danger is-outlined">
-                    Deny
+                    <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
+            <td><b>Bob Cunningham</b></td>
+          </tr>
+          <tr>
+            <th>13007</th>
+            <td>Jed Schmed</td>
+            <td>
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-small is-info">From</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small"><b>Daniel Rupp</b></a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-warning is-light">Pending approval</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-danger is-outlined">
+                    <span class="icon"><i class="fas fa-times"></i></span>
+                  </a>
+                </div>
+              </div>
+            </td>
+            <td><b>Me</b></td>
           </tr>
           <tr>
             <th>13008</th>
@@ -162,6 +207,32 @@
           </tr>
         </tbody>
       </table>
+      <h1 class="title is-3">Make a request</h1>
+      <div class="field">
+        <label class="label">Student</label>
+        <div class="control has-icons-right">
+          <input class="input" type="text" placeholder="Student">
+          <span class="icon is-small is-right">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Destination</label>
+        <div class="control">
+          <div class="select">
+            <select>
+              <option>Me</option>
+              <option>Bob Anderson</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="control">
+          <a class="button is-info">Submit</a>
+        </div>
+      </div>
     </div>
   </section>
   </body>
