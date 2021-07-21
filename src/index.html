@@ -73,20 +73,22 @@
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Request</th>
-            <th>Requested by</th>
+            <th>Transfer</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <th>13001</th>
             <td>Joe Schmoe</td>
-            <td></td>
-            <td></td>
+            <td>
+              <div class="field">
+                <a class="button is-small is-light">Request transfer</a>
+              </div>
+            </td>
           </tr>
           <tr>
             <th>13002</th>
-            <td><s>Jane Schmane<s></td>
+            <td><b><s>Jane Schmane<s></b></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
@@ -104,21 +106,16 @@
                   </a>
                 </div>
                 <div class="control">
-                  <a class="button is-small is-danger is-outlined">
+                  <a class="button is-small has-text-grey is-outlined">
                     <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
-            <td><b>Paul York</b></td>
-            <td>
-              <div class="field has-addons">
-              </div>
-            </td>
           </tr>
           <tr>
             <th>13003</th>
-            <td><s>John Schmon<s></td>
+            <td><b><s>John Schmon<s></b></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
@@ -131,29 +128,34 @@
                   <a class="button is-small is-success is-light">Approved</a>
                 </div>
                 <div class="control">
-                  <a class="button is-small is-danger is-outlined">
+                  <a class="button is-small has-text-grey is-outlined">
                     <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
-            <td><b>Me</b></td>
           </tr>
           <tr>
             <th>13004</th>
             <td>Joan Schmoan</td>
-            <td></td>
-            <td></td>
+            <td>
+              <div class="field">
+                <a class="button is-small is-light">Request transfer</a>
+              </div>
+            </td>
           </tr>
           <tr>
             <th>13005</th>
             <td>Jim Schmim</td>
-            <td></td>
-            <td></td>
+            <td>
+              <div class="field">
+                <a class="button is-small is-light">Request transfer</a>
+              </div>
+            </td>
           </tr>
           <tr>
             <th >13006</th>
-            <td>Jean Schmean</td>
+            <td><b>Jean Schmean</b></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
@@ -163,20 +165,36 @@
                   <a class="button is-small"><b>Bob Cunningham</b></a>
                 </div>
                 <div class="control">
-                  <a class="button is-small is-success is-light">Approved</a>
+                  <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
                 </div>
                 <div class="control">
-                  <a class="button is-small is-danger is-outlined">
+                  <a class="button is-small has-text-grey is-outlined">
                     <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
-            <td><b>Bob Cunningham</b></td>
+          </tr>
+          <tr>
+            <th >13006</th>
+            <td><b>Jill Schmill</b></td>
+            <td>
+              <div class="field has-addons">
+                <div class="control">
+                  <a class="button is-small is-info">From</a>
+                </div>
+                <div class="control">
+                  <a class="button is-small"><b>Bob Anderson</b></a>
+                </div>
+                <div class="control">
+                  <a class="button is-small is-light">Automatic</a>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr>
             <th>13007</th>
-            <td>Jed Schmed</td>
+            <td><b>Jed Schmed</b></td>
             <td>
               <div class="field has-addons">
                 <div class="control">
@@ -189,50 +207,28 @@
                   <a class="button is-small is-warning is-light">Pending approval</a>
                 </div>
                 <div class="control">
-                  <a class="button is-small is-danger is-outlined">
+                  <a class="button is-small has-text-grey is-outlined">
                     <span class="icon"><i class="fas fa-times"></i></span>
                   </a>
                 </div>
               </div>
             </td>
-            <td><b>Me</b></td>
           </tr>
           <tr>
             <th>13008</th>
             <td>Janet Schmanet</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>
+              <div class="field">
+                <a class="button is-small is-light">Request transfer</a>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
-      <h1 class="title is-3">Make a request</h1>
-      <div class="field">
-        <label class="label">Student</label>
-        <div class="control has-icons-right">
-          <input class="input" type="text" placeholder="Student">
-          <span class="icon is-small is-right">
-            <i class="fas fa-search"></i>
-          </span>
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">Destination</label>
-        <div class="control">
-          <div class="select">
-            <select>
-              <option>Me</option>
-              <option>Bob Anderson</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="field">
-        <div class="control">
-          <a class="button is-info">Submit</a>
-        </div>
-      </div>
+      <a class="button is-info">
+        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span>Request a student from another homeroom</span>
+      </a>
     </div>
   </section>
   </body>
