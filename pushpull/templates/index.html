@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Push 'n' Pull - Corey Helgesen - 2:00</title>
+    <title>{{app_title}} - Corey Helgesen - 2:00</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <link href="/Font-Awesome/css/all.css" rel="stylesheet">
+    <link href="{{url_for('static', filename='Font-Awesome/css/all.css')}}" rel="stylesheet">
     <style type="text/css">
         .table td {
             vertical-align: middle;
@@ -19,7 +19,7 @@
   <body>
   <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
-      <a class="navbar-item"><span class="is-size-4"><b>Push 'n' Pull</b></span></a>
+      <a class="navbar-item"><span class="is-size-4"><b>{{app_title}}</b></span></a>
     </div>
     <div class="navbar-menu">
       <div class="navbar-end">
