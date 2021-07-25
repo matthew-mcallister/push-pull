@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+{# Strikes out text if the student is leaving this classroom #}
+{% macro strike_outgoing(text, student) %}
+  {% if student.request and student.request.destination != current_teacher %}
+    <s>{{text}}</s>
+  {% else %}
+    {{text}}
+  {% endif %}
+{% endmacro %}
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{app_title}} - Corey Helgesen - 2:00</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link href="{{url_for('static', filename='Font-Awesome/css/all.css')}}" rel="stylesheet">
+    <style type="text/css">
+        .table td {
+            vertical-align: middle;
+        }
+        .table th {
+            vertical-align: middle;
+        }
+    </style>
+  </head>
+
+  <body>
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item"><span class="is-size-4"><b>{{app_title}}</b></span></a>
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="field has-addons">
+            <div class="control">
+              <a class="button is-static">I am</a>
+            </div>
+            <div class="control">
+              <div class="select">
+                <select>
+                  {% for teacher in teachers %}
+                    <option>{{teacher.name}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <div class="field has-addons">
+            <div class="control">
+              <a class="button is-static">Block</a>
+            </div>
+            <div class="control">
+              <div class="select">
+                <select>
+                  <!-- TODO: Templatize -->
+                  <option>Monday 2:00</option>
+                  <option>Monday 2:45</option>
+                  <option>Wednesday 2:00</option>
+                  <option>Wednesday 2:45</option>
+                  <option>Friday 2:00</option>
+                  <option>Friday 2:45</option>
+                  <option>Tuesday 2:00</option>
+                  <option>Tuesday 2:45</option>
+                  <option>Thursday 2:00</option>
+                  <option>Thursday 2:45</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title is-3">{{current_teacher.name}} - Monday 2:00</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Transfer</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+            <tr>
+              <th>{{strike_outgoing(student.id, student)}}</th>
+              <td>
+                {% if student.request %}
+                  <b>{{strike_outgoing(student.name, student)}}</b>
+                {% else %}
+                  {{student.name}}
+                {% endif %}
+              </td>
+              <td>
+                {% if student.request %}
+                  {% set request = student.request %}
+                  <div class="field has-addons">
+                    {% if request.destination == current_teacher %}
+                      <div class="control">
+                        <a class="button is-small is-info">From</a>
+                      </div>
+                      <div class="control">
+                        <a class="button is-small"><b>{{student.teacher.name}}</b></a>
+                      </div>
+                    {% else %}
+                      <div class="control">
+                        <a class="button is-small is-danger">To</a>
+                      </div>
+                      <div class="control">
+                        <a class="button is-small"><b>{{request.destination.name}}</b></a>
+                      </div>
+                    {% endif %}
+                    {% if request.requester == current_teacher %}
+                      {% if request.approved %}
+                        <div class="control">
+                          <a class="button is-small is-success is-light"><span>Approved</span></a>
+                        </div>
+                      {% else %}
+                        <div class="control">
+                          <a class="button is-small is-warning is-light">Pending approval</a>
+                        </div>
+                      {% endif %}
+                    {% elif request.requester %}
+                      {% if request.approved %}
+                        <div class="control">
+                          <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
+                        </div>
+                      {% else %}
+                        <div class="control">
+                          <a class="button is-small is-info is-light">Needs approval</a>
+                        </div>
+                        <div class="control">
+                          <a class="button is-small is-success is-outlined">
+                            <span class="icon"><i class="fas fa-check"></i></span>
+                          </a>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                    {% if request.request_code == 'A' %}
+                      <div class="control">
+                        <a class="button is-small is-light">Automatic</a>
+                      </div>
+                    {% else %}
+                      <div class="control">
+                        <a class="button is-small has-text-grey is-outlined">
+                          <span class="icon"><i class="fas fa-times"></i></span>
+                        </a>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <div class="field">
+                    <a class="button is-small is-light">Request transfer</a>
+                  </div>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a class="button is-info">
+        <span class="icon"><i class="fas fa-plus"></i></span>
+        <span>Request a student from another homeroom</span>
+      </a>
+    </div>
+  </section>
+  </body>
+</html>

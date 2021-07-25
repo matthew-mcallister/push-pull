@@ -37,11 +37,8 @@ def create_app():
     from pushpull.model import db
     db.init_app(app)
 
-    from pushpull import model
-    model.register(app)
-
-    @app.route('/')
-    def index():
-        return render_template('index.html', app_title="Push 'n' Pull")
+    from pushpull import model, teacher_dash
+    model.register_commands(app)
+    app.register_blueprint(teacher_dash.bp)
 
     return app
