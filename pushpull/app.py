@@ -14,9 +14,10 @@ def create_app():
     """
     app = Flask(__name__, instance_relative_config=True)
 
-    # Init hardcoded config defaults
-    # N.B. See https://docs.sqlalchemy.org/en/14/core/engines.html#sqlite
-    db_uri = f"sqlite:///{os.path.join(app.instance_path, 'pushpull.sqlite')}"
+    db_uri = os.getenv('DATABASE_URL')
+    if db_uri.startswith("postgres://"):
+        db_uri = db_uri.replace("postgres://", "postgresql://", 1)
+
     app.config.from_mapping(
         SECRET_KEY='notasecret',
         DEBUG=True,
@@ -42,3 +43,7 @@ def create_app():
     app.register_blueprint(teacher_dash.bp)
 
     return app
+
+
+if __name__ == '__main__':
+    create_app().run(debug=True)

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test view</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+  <section class="section">
+    <div class="container">
+      <h1 class="title is-3">Test view</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Transfer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>{{current_teacher.id}}</th>
+            <th>{{current_teacher.username}}</th>
+            <th>{{current_teacher.name}}</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  </body>
+</html>
