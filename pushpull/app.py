@@ -14,14 +14,14 @@ def create_app():
     """
     app = Flask(__name__, instance_relative_config=True)
 
-    db_uri = os.getenv('DATABASE_URL')
-    if db_uri.startswith("postgres://"):
-        db_uri = db_uri.replace("postgres://", "postgresql://", 1)
+    db_url = os.getenv('DATABASE_URL')
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
 
     app.config.from_mapping(
         SECRET_KEY='notasecret',
         DEBUG=True,
-        SQLALCHEMY_DATABASE_URI=db_uri,
+        SQLALCHEMY_DATABASE_URI=db_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
@@ -34,12 +34,10 @@ def create_app():
     except OSError:
         pass
 
-    # Init database
-    from pushpull.model import db
-    db.init_app(app)
-
-    from pushpull import model, teacher_dash
+    from pushpull import aeries, model, teacher_dash
+    model.db.init_app(app)
     model.register_commands(app)
+    aeries.register_commands(app)
     app.register_blueprint(teacher_dash.bp)
 
     return app

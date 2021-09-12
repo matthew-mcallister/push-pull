@@ -1,1 +1,2 @@
-web: python3 pushpull/app.py
+web: python3 -m pushpull.app
+clock: python3 -m flask sync
