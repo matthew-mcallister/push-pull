@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 
 {# Strikes out text if the student is leaving this classroom #}
-{% macro strike_outgoing(text, student) %}
-  {% if student.request and student.request.destination != current_teacher %}
+{% macro strike_outgoing(text, student, request) %}
+  {% if request and request.destination_teacher != current_teacher %}
     <s>{{text}}</s>
   {% else %}
     {{text}}
@@ -13,9 +13,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{app_title}} - Corey Helgesen - 2:00</title>
+    <title>{{app_title}} - {{current_teacher.name}}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <link href="{{url_for('static', filename='Font-Awesome/css/all.css')}}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style type="text/css">
         .table td {
             vertical-align: middle;
@@ -33,22 +33,6 @@
     </div>
     <div class="navbar-menu">
       <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="field has-addons">
-            <div class="control">
-              <a class="button is-static">I am</a>
-            </div>
-            <div class="control">
-              <div class="select">
-                <select>
-                  {% for teacher in teachers %}
-                    <option>{{teacher.name}}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="navbar-item">
           <div class="field has-addons">
             <div class="control">
@@ -80,7 +64,10 @@
   <section class="section">
     <div class="container">
       <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
-      <table class="table">
+      <h2 class="subtitle is-4">
+        {{block.start_time.strftime('%A, %d %B, %I:%M%p')}}
+      </h2>
+      <table class="table is-striped">
         <thead>
           <tr>
             <th>ID</th>
@@ -89,33 +76,32 @@
           </tr>
         </thead>
         <tbody>
-          {% for student in students %}
+          {% for student, request in entries %}
             <tr>
-              <th>{{strike_outgoing(student.id, student)}}</th>
+              <th>{{strike_outgoing(student.id, student, request)}}</th>
               <td>
-                {% if student.request %}
-                  <b>{{strike_outgoing(student.name, student)}}</b>
+                {% if request %}
+                  <b>{{strike_outgoing(student.name, student, request)}}</b>
                 {% else %}
                   {{student.name}}
                 {% endif %}
               </td>
               <td>
-                {% if student.request %}
-                  {% set request = student.request %}
+                {% if request %}
                   <div class="field has-addons">
-                    {% if request.destination == current_teacher %}
+                    {% if request.destination_teacher == current_teacher %}
                       <div class="control">
                         <a class="button is-small is-info">From</a>
                       </div>
                       <div class="control">
-                        <a class="button is-small"><b>{{student.teacher.name}}</b></a>
+                        <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
                       </div>
                     {% else %}
                       <div class="control">
                         <a class="button is-small is-danger">To</a>
                       </div>
                       <div class="control">
-                        <a class="button is-small"><b>{{request.destination.name}}</b></a>
+                        <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
                       </div>
                     {% endif %}
                     {% if request.requester == current_teacher %}
@@ -144,7 +130,7 @@
                         </div>
                       {% endif %}
                     {% endif %}
-                    {% if request.request_code == 'A' %}
+                    {% if not request.requester %}
                       <div class="control">
                         <a class="button is-small is-light">Automatic</a>
                       </div>

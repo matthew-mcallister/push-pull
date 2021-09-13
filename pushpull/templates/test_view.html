@@ -12,21 +12,27 @@
   <body>
   <section class="section">
     <div class="container">
-      <h1 class="title is-3">Test view</h1>
+      <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
       <table class="table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Transfer</th>
+            <th>Request</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <th>{{current_teacher.id}}</th>
-            <th>{{current_teacher.username}}</th>
-            <th>{{current_teacher.name}}</th>
-          </tr>
+          {% for student, request in entries %}
+            <tr>
+              <th>{{student.id}}</th>
+              <th>{{student.name}}</th>
+              <th>
+                {% if request %}
+                  {{student.home_teacher.name}} -> {{request.destination_teacher.name}}
+                {% endif %}
+              </th>
+            </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

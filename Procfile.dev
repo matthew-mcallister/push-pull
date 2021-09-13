@@ -1,0 +1,1 @@
+sync: python3 -m flask sync

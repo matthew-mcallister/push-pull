@@ -8,6 +8,7 @@ authors = ["Matthew McAllister <matthew.mcallister.0@gmail.com>"]
 python = "^3.9"
 Flask = "^2.0.1"
 Flask-SQLAlchemy = "^2.5.1"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 

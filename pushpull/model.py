@@ -13,7 +13,6 @@ class Teacher(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(60), unique=True, nullable=False)
-    students = db.relationship('Student', backref='teacher', lazy=True)
 
 
 class Student(db.Model):
@@ -22,6 +21,11 @@ class Student(db.Model):
     last_name = db.Column(db.String(60), nullable=False)
     home_teacher_id = db.Column(db.String(60), db.ForeignKey('teacher.id'),
         nullable=False)
+    home_teacher = db.relationship('Teacher', lazy=False)
+
+    @property
+    def name(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 class Block(db.Model):
@@ -36,33 +40,40 @@ class Requester(enum.Enum):
 
 
 class Request(db.Model):
-    block_id = db.Column(db.Integer, db.ForeignKey('block.id'), nullable=False,
-        primary_key=True)
+    block_id = db.Column(db.Integer, db.ForeignKey('block.id'),
+        nullable=False, primary_key=True)
+    block = db.relationship('Block')
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'),
         nullable=False, primary_key=True)
+    student = db.relationship('Student', lazy=False)
     destination_teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'),
-        nullable=False, primary_key=True)
-    approved = db.Column(db.Boolean, nullable=False)
+        nullable=False)
+    destination_teacher = db.relationship('Teacher', lazy=False)
     submitted_at = db.Column(db.DateTime, nullable=False)
-    requester = db.Column(db.Enum(Requester), nullable=False)
+    requester_code = db.Column(db.Enum(Requester), nullable=False)
+    approved_at = db.Column(db.DateTime)
 
     @property
     def requester(self):
-        if self.requester == Requester.src:
-            return self.student.teacher
-        elif self.requester == Requester.dst:
-            return self.destination
+        if self.requester_code == Requester.src:
+            return self.student.home_teacher
+        elif self.requester_code == Requester.dst:
+            return self.destination_teacher
         else:
             return None
 
     @property
     def approver(self):
-        if self.requester == Requester.src:
-            return self.destination
-        elif self.requester == Requester.dst:
-            return self.student.teacher
+        if self.requester_code == Requester.src:
+            return self.destination_teacher
+        elif self.requester_code == Requester.dst:
+            return self.student.home_teacher
         else:
             return None
+
+    @property
+    def approved(self):
+        return bool(self.approved_at)
 
 
 @click.command('init-db')
