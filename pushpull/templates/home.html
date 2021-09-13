@@ -29,6 +29,7 @@
             <div class="control">
               <div class="select">
                 <select onchange="location = this.value;">
+                  <option></option>
                   {% for teacher in teachers %}
                     <option value="{{url_for('teacher_dash.dash', teacher_id=teacher.id, block_id=block.id)}}">{{teacher.name}}</option>
                   {% endfor %}

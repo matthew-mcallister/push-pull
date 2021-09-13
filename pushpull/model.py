@@ -41,6 +41,18 @@ class Student(db.Model):
         ))
         db.session.commit()
 
+    @staticmethod
+    def push(student_id, teacher_id, block_id):
+        db.session.add(Request(
+            block_id=block_id,
+            student_id=student_id,
+            destination_teacher_id=teacher_id,
+            submitted_at=datetime.now(pytz.utc),
+            requester_code=Requester.src,
+            approved_at=None,
+        ))
+        db.session.commit()
+
 
 class Block(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)

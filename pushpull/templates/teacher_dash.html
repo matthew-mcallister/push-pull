@@ -21,7 +21,10 @@
   <section class="section">
     <div class="container">
       {% if success %}
-        <div class="notification is-success"><p>{{success}}</p></div>
+        <div class="notification is-success is-light"><p>{{success}}</p></div>
+      {% endif %}
+      {% if info %}
+        <div class="notification is-info is-light"><p>{{info}}</p></div>
       {% endif %}
       <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
       <div class="tabs">
@@ -55,8 +58,8 @@
                 {% endif %}
               </td>
               <td>
-                {% if request %}
-                  <form method="post">
+                <form method="post">
+                  {% if request %}
                     <div class="field has-addons">
                       {% if request.destination_teacher == current_teacher %}
                         <div class="control">
@@ -122,13 +125,30 @@
                       {% endif %}
                     </div>
                   {% else %}
-                    <div class="field">
-                      <a class="button is-small is-light">
-                        Request transfer
-                      </a>
+                    <div class="field has-addons">
+                      <div class="control">
+                        <div class="select is-small">
+                          <select name="teacher">
+                            <option></option>
+                            {% for teacher in teachers %}
+                              <option value="{{teacher.id}}">{{teacher.name}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="control">
+                        <button
+                          type="submit"
+                          name="push"
+                          value="{{student.id}}"
+                          class="button is-small is-outlined"
+                        >
+                          Request push
+                        </button>
+                      </div>
                     </div>
-                  </form>
-                {% endif %}
+                  {% endif %}
+                </form>
               </td>
             </tr>
           {% endfor %}
