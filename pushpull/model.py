@@ -41,6 +41,7 @@ class Block(db.Model):
         midnight = datetime.combine(now.date(), datetime.min.time(), tz)
         return Block.query \
             .filter(Block.start_time >= midnight) \
+            .order_by(Block.start_time.asc()) \
             .limit(10) \
             .all()
 

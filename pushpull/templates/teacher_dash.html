@@ -35,34 +35,22 @@
     <div class="navbar-brand">
       <a class="navbar-item"><span class="is-size-4"><b>{{app_title}}</b></span></a>
     </div>
-    <div class="navbar-menu">
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="field has-addons">
-            <div class="control">
-              <a class="button is-static">Block</a>
-            </div>
-            <div class="control">
-              <div class="select">
-                <select>
-                  {% for block in blocks %}
-                    <option>{{format_block_time(block)}}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </nav>
 
   <section class="section">
     <div class="container">
       <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
-      <h2 class="subtitle is-4">
-        {{format_block_time(block)}}
-      </h2>
+      <div class="tabs">
+        <ul>
+          {% for b in blocks %}
+            <li {% if b == block %}class="is-active"{% endif %}>
+              <a href="{{url_for('.dash', teacher_id=current_teacher.id, block_id=b.id)}}">
+                {{b.start_time|utc_to_local('%a, %d %b, %I:%M%p')}}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
       <table class="table is-striped">
         <thead>
           <tr>
