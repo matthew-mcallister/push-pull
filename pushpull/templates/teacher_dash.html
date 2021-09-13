@@ -72,64 +72,78 @@
               </td>
               <td>
                 {% if request %}
-                  <div class="field has-addons">
-                    {% if request.destination_teacher == current_teacher %}
-                      <div class="control">
-                        <a class="button is-small is-info">From</a>
-                      </div>
-                      <div class="control">
-                        <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
-                      </div>
-                    {% else %}
-                      <div class="control">
-                        <a class="button is-small is-danger">To</a>
-                      </div>
-                      <div class="control">
-                        <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
-                      </div>
-                    {% endif %}
-                    {% if request.requester == current_teacher %}
-                      {% if request.approved %}
+                  <form method="post">
+                    <div class="field has-addons">
+                      {% if request.destination_teacher == current_teacher %}
                         <div class="control">
-                          <a class="button is-small is-success is-light"><span>Approved</span></a>
+                          <a class="button is-small is-info">From</a>
+                        </div>
+                        <div class="control">
+                          <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
                         </div>
                       {% else %}
                         <div class="control">
-                          <a class="button is-small is-warning is-light">Pending approval</a>
+                          <a class="button is-small is-danger">To</a>
+                        </div>
+                        <div class="control">
+                          <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
                         </div>
                       {% endif %}
-                    {% elif request.requester %}
-                      {% if request.approved %}
+                      {% if request.requester == current_teacher %}
+                        {% if request.approved %}
+                          <div class="control">
+                            <a class="button is-small is-success is-light"><span>Approved</span></a>
+                          </div>
+                        {% else %}
+                          <div class="control">
+                            <a class="button is-small is-warning is-light">Pending approval</a>
+                          </div>
+                        {% endif %}
+                      {% elif request.requester %}
+                        {% if request.approved %}
+                          <div class="control">
+                            <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
+                          </div>
+                        {% else %}
+                          <div class="control">
+                            <a class="button is-small is-info is-light">Needs approval</a>
+                          </div>
+                          <div class="control">
+                            <button
+                              type="submit"
+                              name="approve"
+                              value="{{student.id}}"
+                              class="button is-small is-success is-outlined"
+                            >
+                              <span class="icon"><i class="fas fa-check"></i></span>
+                            </button>
+                          </div>
+                        {% endif %}
+                      {% endif %}
+                      {% if not request.requester %}
                         <div class="control">
-                          <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
+                          <a class="button is-small is-light">Automatic</a>
                         </div>
                       {% else %}
                         <div class="control">
-                          <a class="button is-small is-info is-light">Needs approval</a>
-                        </div>
-                        <div class="control">
-                          <a class="button is-small is-success is-outlined">
-                            <span class="icon"><i class="fas fa-check"></i></span>
-                          </a>
+                          <button
+                            type="submit"
+                            name="delete"
+                            value="{{student.id}}"
+                            class="button is-small has-text-grey is-outlined"
+                          >
+                            <span class="icon"><i class="fas fa-times"></i></span>
+                          </button>
                         </div>
                       {% endif %}
-                    {% endif %}
-                    {% if not request.requester %}
-                      <div class="control">
-                        <a class="button is-small is-light">Automatic</a>
-                      </div>
-                    {% else %}
-                      <div class="control">
-                        <a class="button is-small has-text-grey is-outlined">
-                          <span class="icon"><i class="fas fa-times"></i></span>
-                        </a>
-                      </div>
-                    {% endif %}
-                  </div>
-                {% else %}
-                  <div class="field">
-                    <a class="button is-small is-light">Request transfer</a>
-                  </div>
+                    </div>
+                  {% else %}
+                    <div class="field">
+                      <a class="button is-small is-light">
+                        Request transfer
+                      </a>
+                    </div>
+                  </form>
                 {% endif %}
               </td>
             </tr>

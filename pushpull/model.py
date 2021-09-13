@@ -88,6 +88,21 @@ class Request(db.Model):
     def approved(self):
         return bool(self.approved_at)
 
+    @staticmethod
+    def approve(block_id, student_id):
+        db.session.query(Request) \
+            .filter_by(block_id=block_id, student_id=student_id) \
+            .update({'approved_at': datetime.now(pytz.utc)})
+        db.session.commit()
+
+    # TODO: Soft deletion
+    @staticmethod
+    def delete(block_id, student_id):
+        db.session.query(Request) \
+            .filter_by(block_id=block_id, student_id=student_id) \
+            .delete()
+        db.session.commit()
+
 
 @click.command('init-db')
 @with_appcontext
