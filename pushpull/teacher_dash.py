@@ -12,15 +12,18 @@ bp = Blueprint('teacher_dash', __name__, url_prefix='/teacher')
 
 @bp.route('/<int:teacher_id>/block/<int:block_id>', methods=['GET', 'POST'])
 def dash(teacher_id, block_id):
-    error = None
     success = None
     if request.method == 'POST':
         if request.content_length > 1e5:
             abort(413)
         if 'approve' in request.form:
-            Request.approve(block_id, int(request.form['approve']))
+            student_id = int(request.form['approve'])
+            Request.approve(block_id, student_id)
+            success = f'Approved request for {student_id}'
         elif 'delete' in request.form:
-            Request.delete(block_id, int(request.form['delete']))
+            student_id = int(request.form['delete'])
+            Request.delete(block_id, student_id)
+            success = f'Denied request for {student_id}'
         else:
             abort(400)
 
@@ -36,6 +39,7 @@ def dash(teacher_id, block_id):
             Student.home_teacher_id == teacher_id,
             Request.destination_teacher_id == teacher_id,
         )) \
+        .order_by(Student.last_name) \
         .add_entity(Request) \
         .all()
     return render_template(
@@ -45,6 +49,5 @@ def dash(teacher_id, block_id):
         block=block,
         blocks=blocks,
         entries=entries,
-        error=error,
         success=success,
     )

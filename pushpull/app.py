@@ -34,12 +34,13 @@ def create_app():
     except OSError:
         pass
 
-    from pushpull import aeries, filters, model, teacher_dash
+    from pushpull import aeries, filters, main, model, teacher_dash
     model.db.init_app(app)
     aeries.register_commands(app)
     model.register_commands(app)
     filters.register_filters(app)
 
+    app.register_blueprint(main.bp)
     app.register_blueprint(teacher_dash.bp)
 
     return app

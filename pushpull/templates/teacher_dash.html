@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block title %}
+  {{current_teacher.name}} - {{format_block_time(block)}}
+{% endblock %}
 
 {# Strikes out text if the student is leaving this classroom #}
 {% macro strike_outgoing(text, student, request) %}
@@ -13,148 +17,124 @@
   {{block.start_time|utc_to_local('%A, %d %B, %I:%M%p')}}
 {% endmacro %}
 
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{app_title}} - {{current_teacher.name}}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style type="text/css">
-        .table td {
-            vertical-align: middle;
-        }
-        .table th {
-            vertical-align: middle;
-        }
-    </style>
-  </head>
-
-  <body>
-  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item"><span class="is-size-4"><b>{{app_title}}</b></span></a>
-    </div>
-  </nav>
-
-  <section class="section">
-    <div class="container">
-      <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
-      <div class="tabs">
-        <ul>
-          {% for b in blocks %}
-            <li {% if b == block %}class="is-active"{% endif %}>
-              <a href="{{url_for('.dash', teacher_id=current_teacher.id, block_id=b.id)}}">
-                {{b.start_time|utc_to_local('%a, %d %b, %I:%M%p')}}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-      <table class="table is-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Transfer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for student, request in entries %}
-            <tr>
-              <th>{{strike_outgoing(student.id, student, request)}}</th>
-              <td>
-                {% if request %}
-                  <b>{{strike_outgoing(student.name, student, request)}}</b>
-                {% else %}
-                  {{student.name}}
-                {% endif %}
-              </td>
-              <td>
-                {% if request %}
-                  <form method="post">
-                    <div class="field has-addons">
-                      {% if request.destination_teacher == current_teacher %}
-                        <div class="control">
-                          <a class="button is-small is-info">From</a>
-                        </div>
-                        <div class="control">
-                          <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
-                        </div>
-                      {% else %}
-                        <div class="control">
-                          <a class="button is-small is-danger">To</a>
-                        </div>
-                        <div class="control">
-                          <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
-                        </div>
-                      {% endif %}
-                      {% if request.requester == current_teacher %}
-                        {% if request.approved %}
-                          <div class="control">
-                            <a class="button is-small is-success is-light"><span>Approved</span></a>
-                          </div>
-                        {% else %}
-                          <div class="control">
-                            <a class="button is-small is-warning is-light">Pending approval</a>
-                          </div>
-                        {% endif %}
-                      {% elif request.requester %}
-                        {% if request.approved %}
-                          <div class="control">
-                            <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
-                          </div>
-                        {% else %}
-                          <div class="control">
-                            <a class="button is-small is-info is-light">Needs approval</a>
-                          </div>
-                          <div class="control">
-                            <button
-                              type="submit"
-                              name="approve"
-                              value="{{student.id}}"
-                              class="button is-small is-success is-outlined"
-                            >
-                              <span class="icon"><i class="fas fa-check"></i></span>
-                            </button>
-                          </div>
-                        {% endif %}
-                      {% endif %}
-                      {% if not request.requester %}
-                        <div class="control">
-                          <a class="button is-small is-light">Automatic</a>
-                        </div>
-                      {% else %}
-                        <div class="control">
-                          <button
-                            type="submit"
-                            name="delete"
-                            value="{{student.id}}"
-                            class="button is-small has-text-grey is-outlined"
-                          >
-                            <span class="icon"><i class="fas fa-times"></i></span>
-                          </button>
-                        </div>
-                      {% endif %}
-                    </div>
-                  {% else %}
-                    <div class="field">
-                      <a class="button is-small is-light">
-                        Request transfer
-                      </a>
-                    </div>
-                  </form>
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <a class="button is-info">
-        <span class="icon"><i class="fas fa-plus"></i></span>
-        <span>Request a student from another homeroom</span>
-      </a>
-    </div>
-  </section>
-  </body>
-</html>
+{% block body %}
+ <section class="section">
+   <div class="container">
+     <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
+     <div class="tabs">
+       <ul>
+         {% for b in blocks %}
+           <li {% if b == block %}class="is-active"{% endif %}>
+             <a href="{{url_for('.dash', teacher_id=current_teacher.id, block_id=b.id)}}">
+               {{b.start_time|utc_to_local('%a, %d %b, %I:%M%p')}}
+             </a>
+           </li>
+         {% endfor %}
+       </ul>
+     </div>
+     <table class="table is-striped">
+       <thead>
+         <tr>
+           <th>ID</th>
+           <th>Name</th>
+           <th>Transfer</th>
+         </tr>
+       </thead>
+       <tbody>
+         {% for student, request in entries %}
+           <tr>
+             <th>{{strike_outgoing(student.id, student, request)}}</th>
+             <td>
+               {% if request %}
+                 <b>{{strike_outgoing(student.name, student, request)}}</b>
+               {% else %}
+                 {{student.name}}
+               {% endif %}
+             </td>
+             <td>
+               {% if request %}
+                 <form method="post">
+                   <div class="field has-addons">
+                     {% if request.destination_teacher == current_teacher %}
+                       <div class="control">
+                         <a class="button is-small is-info">From</a>
+                       </div>
+                       <div class="control">
+                         <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
+                       </div>
+                     {% else %}
+                       <div class="control">
+                         <a class="button is-small is-danger">To</a>
+                       </div>
+                       <div class="control">
+                         <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
+                       </div>
+                     {% endif %}
+                     {% if request.requester == current_teacher %}
+                       {% if request.approved %}
+                         <div class="control">
+                           <a class="button is-small is-success is-light"><span>Approved</span></a>
+                         </div>
+                       {% else %}
+                         <div class="control">
+                           <a class="button is-small is-warning is-light">Pending approval</a>
+                         </div>
+                       {% endif %}
+                     {% elif request.requester %}
+                       {% if request.approved %}
+                         <div class="control">
+                           <a class="button is-small is-success is-light"><span>Approved by <b>me</b></span></a>
+                         </div>
+                       {% else %}
+                         <div class="control">
+                           <a class="button is-small is-info is-light">Needs approval</a>
+                         </div>
+                         <div class="control">
+                           <button
+                             type="submit"
+                             name="approve"
+                             value="{{student.id}}"
+                             class="button is-small is-success is-outlined"
+                           >
+                             <span class="icon"><i class="fas fa-check"></i></span>
+                           </button>
+                         </div>
+                       {% endif %}
+                     {% endif %}
+                     {% if not request.requester %}
+                       <div class="control">
+                         <a class="button is-small is-light">Automatic</a>
+                       </div>
+                     {% else %}
+                       <div class="control">
+                         <button
+                           type="submit"
+                           name="delete"
+                           value="{{student.id}}"
+                           class="button is-small has-text-grey is-outlined"
+                         >
+                           <span class="icon"><i class="fas fa-times"></i></span>
+                         </button>
+                       </div>
+                     {% endif %}
+                   </div>
+                 {% else %}
+                   <div class="field">
+                     <a class="button is-small is-light">
+                       Request transfer
+                     </a>
+                   </div>
+                 </form>
+               {% endif %}
+             </td>
+           </tr>
+         {% endfor %}
+       </tbody>
+     </table>
+     <a class="button is-info">
+       <span class="icon"><i class="fas fa-plus"></i></span>
+       <span>Request a student from another homeroom</span>
+     </a>
+   </div>
+ </section>
+{% endblock %}
