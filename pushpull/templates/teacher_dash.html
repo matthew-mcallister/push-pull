@@ -9,6 +9,10 @@
   {% endif %}
 {% endmacro %}
 
+{% macro format_block_time(block) %}
+  {{block.start_time|utc_to_local('%A, %d %B, %I:%M%p')}}
+{% endmacro %}
+
 <html>
   <head>
     <meta charset="utf-8">
@@ -41,17 +45,9 @@
             <div class="control">
               <div class="select">
                 <select>
-                  <!-- TODO: Templatize -->
-                  <option>Monday 2:00</option>
-                  <option>Monday 2:45</option>
-                  <option>Wednesday 2:00</option>
-                  <option>Wednesday 2:45</option>
-                  <option>Friday 2:00</option>
-                  <option>Friday 2:45</option>
-                  <option>Tuesday 2:00</option>
-                  <option>Tuesday 2:45</option>
-                  <option>Thursday 2:00</option>
-                  <option>Thursday 2:45</option>
+                  {% for block in blocks %}
+                    <option>{{format_block_time(block)}}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
@@ -65,7 +61,7 @@
     <div class="container">
       <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
       <h2 class="subtitle is-4">
-        {{block.start_time.strftime('%A, %d %B, %I:%M%p')}}
+        {{format_block_time(block)}}
       </h2>
       <table class="table is-striped">
         <thead>

@@ -14,6 +14,7 @@ bp = Blueprint('teacher_dash', __name__, url_prefix='/teacher')
 def dash(teacher_id, block_id):
     current_teacher = Teacher.query.get_or_404(teacher_id)
     block = Block.query.get_or_404(block_id)
+    blocks = Block.upcoming()
     entries = Student.query \
         .outerjoin(Request, and_(
             Request.student_id == Student.id,
@@ -30,5 +31,6 @@ def dash(teacher_id, block_id):
         app_title='Push<->Pull',
         current_teacher=current_teacher,
         block=block,
+        blocks=blocks,
         entries=entries,
     )

@@ -1,6 +1,8 @@
 import enum
+from datetime import datetime
 
 import click
+import pytz
 from flask import current_app
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
@@ -31,6 +33,16 @@ class Student(db.Model):
 class Block(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     start_time = db.Column(db.DateTime, nullable=False)
+
+    @staticmethod
+    def upcoming():
+        tz = pytz.timezone('US/Pacific')
+        now = datetime.now(pytz.utc).astimezone(tz)
+        midnight = datetime.combine(now.date(), datetime.min.time(), tz)
+        return Block.query \
+            .filter(Block.start_time >= midnight) \
+            .limit(10) \
+            .all()
 
 
 class Requester(enum.Enum):
