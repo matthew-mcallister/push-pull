@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Pull student - {{current_teacher.name}} - {{format_block_time(block)}}
+{% endblock %}
+
+{% macro format_block_time(block) %}
+  {{block.start_time|utc_to_local('%A, %d %B, %I:%M%p')}}
+{% endmacro %}
+
+{% block body %}
+  <section class="section">
+    <div class="container">
+      <h1 class="title is-3">Pull student</h1>
+      <form>
+        <div class="field has-addons">
+          <div class="control">
+            <input class="input" name="search" type="text" placeholder="Search students">
+          </div>
+          <div class="control">
+            <button type="submit" class="button is-info">
+              <span class="icon"><i class="fas fa-search"></i></span>
+            </button>
+          </div>
+        </div>
+      </form>
+      <table class="table is-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Request</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student, request in entries %}
+            <tr>
+              <td>{{student.id}}</td>
+              <td>{{student.name}}</td>
+              <td>
+                {% if request %}
+                  {# TODO: Make this a template of some sort #}
+                  <div class="field has-addons">
+                    {% if request.destination_teacher == current_teacher %}
+                      <div class="control">
+                        <a class="button is-small is-info">From</a>
+                      </div>
+                      <div class="control">
+                        <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
+                      </div>
+                    {% else %}
+                      <div class="control">
+                        <a class="button is-small is-danger">To</a>
+                      </div>
+                      <div class="control">
+                        <a class="button is-small"><b>{{request.destination_teacher.name}}</b></a>
+                      </div>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <form method="post">
+                    <div class="field has-addons">
+                      <div class="control">
+                        <button
+                          type="submit"
+                          name="pull"
+                          value="{{student.id}}"
+                          formaction="{{url_for('teacher_dash.dash', teacher_id=current_teacher.id, block_id=block.id)}}"
+                          class="button is-info is-outlined"
+                        >
+                          Pull
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

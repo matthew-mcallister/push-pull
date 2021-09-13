@@ -29,6 +29,18 @@ class Student(db.Model):
     def name(self):
         return f'{self.first_name} {self.last_name}'
 
+    @staticmethod
+    def pull(student_id, teacher_id, block_id):
+        db.session.add(Request(
+            block_id=block_id,
+            student_id=student_id,
+            destination_teacher_id=teacher_id,
+            submitted_at=datetime.now(pytz.utc),
+            requester_code=Requester.dst,
+            approved_at=None,
+        ))
+        db.session.commit()
+
 
 class Block(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)

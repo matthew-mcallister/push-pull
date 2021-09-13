@@ -10,7 +10,6 @@ bp = Blueprint('main', __name__, url_prefix='/')
 def home():
     return render_template(
         'home.html',
-        app_title='Push<->Pull',
         block=Block.upcoming()[0],
         teachers=Teacher.query.all(),
     )
