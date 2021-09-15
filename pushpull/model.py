@@ -30,7 +30,7 @@ class Student(db.Model):
         return f'{self.first_name} {self.last_name}'
 
     @staticmethod
-    def pull(student_id, teacher_id, block_id):
+    def pull(student_id: int, teacher_id: int, block_id: int):
         db.session.add(Request(
             block_id=block_id,
             student_id=student_id,
@@ -42,7 +42,7 @@ class Student(db.Model):
         db.session.commit()
 
     @staticmethod
-    def push(student_id, teacher_id, block_id):
+    def push(student_id: int, teacher_id: int, block_id: int):
         db.session.add(Request(
             block_id=block_id,
             student_id=student_id,
@@ -113,7 +113,7 @@ class Request(db.Model):
         return bool(self.approved_at)
 
     @staticmethod
-    def approve(block_id, student_id):
+    def approve(block_id: int, student_id: int):
         db.session.query(Request) \
             .filter_by(block_id=block_id, student_id=student_id) \
             .update({'approved_at': datetime.now(pytz.utc)})
@@ -121,7 +121,7 @@ class Request(db.Model):
 
     # TODO: Soft deletion
     @staticmethod
-    def delete(block_id, student_id):
+    def delete(block_id: int, student_id: int):
         db.session.query(Request) \
             .filter_by(block_id=block_id, student_id=student_id) \
             .delete()

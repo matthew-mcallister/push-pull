@@ -20,11 +20,8 @@
 {% block body %}
   <section class="section">
     <div class="container">
-      {% if success %}
-        <div class="notification is-success is-light"><p>{{success}}</p></div>
-      {% endif %}
-      {% if info %}
-        <div class="notification is-info is-light"><p>{{info}}</p></div>
+      {% if alert %}
+        <div class="notification is-{{status}} is-light"><p>{{alert}}</p></div>
       {% endif %}
       <h1 class="title is-3">{{current_teacher.name}}'s homeroom</h1>
       <div class="tabs">
@@ -58,7 +55,7 @@
                 {% endif %}
               </td>
               <td>
-                <form method="post">
+                <form action="./action/" method="post">
                   {% if request %}
                     <div class="field has-addons">
                       {% if request.destination_teacher == current_teacher %}
@@ -154,7 +151,7 @@
           {% endfor %}
         </tbody>
       </table>
-      <a href="{{url_for('teacher_dash.pull', teacher_id=current_teacher.id, block_id=block.id)}}" class="button is-info">
+      <a href="./pull" class="button is-info">
         <span class="icon"><i class="fas fa-plus"></i></span>
         <span>Request a student from another homeroom</span>
       </a>

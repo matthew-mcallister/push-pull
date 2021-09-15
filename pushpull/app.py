@@ -18,8 +18,10 @@ def create_app():
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
 
+    secret = os.getenv('FLASK_SECRET_KEY', 'notasecret')
+
     app.config.from_mapping(
-        SECRET_KEY='notasecret',
+        SECRET_KEY=secret,
         DEBUG=True,
         SQLALCHEMY_DATABASE_URI=db_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
@@ -27,12 +29,6 @@ def create_app():
 
     # Load config overrides
     app.config.from_pyfile('config.py', silent=True)
-
-    # Create instance directory if necessary
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
 
     from pushpull import aeries, filters, main, model, teacher_dash
     model.db.init_app(app)

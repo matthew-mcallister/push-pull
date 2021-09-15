@@ -58,14 +58,13 @@
                     {% endif %}
                   </div>
                 {% else %}
-                  <form method="post">
+                  <form action="../action/" method="post">
                     <div class="field has-addons">
                       <div class="control">
                         <button
                           type="submit"
                           name="pull"
                           value="{{student.id}}"
-                          formaction="{{url_for('teacher_dash.dash', teacher_id=current_teacher.id, block_id=block.id)}}"
                           class="button is-info is-outlined"
                         >
                           Pull
