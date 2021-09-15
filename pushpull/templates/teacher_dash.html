@@ -17,6 +17,10 @@
   {{block.start_time|utc_to_local('%A, %d %B, %I:%M%p')}}
 {% endmacro %}
 
+{% macro teacher_view(view) %}
+  {{url_for(view, teacher_id=current_teacher.id, block_id=block.id)}}
+{% endmacro %}
+
 {% block body %}
   <section class="section">
     <div class="container">
@@ -55,7 +59,7 @@
                 {% endif %}
               </td>
               <td>
-                <form action="./action/" method="post">
+                <form action="{{teacher_view('.action')}}" method="post">
                   {% if request %}
                     <div class="field has-addons">
                       {% if request.destination_teacher == current_teacher %}
@@ -151,7 +155,7 @@
           {% endfor %}
         </tbody>
       </table>
-      <a href="./pull" class="button is-info">
+      <a href="{{teacher_view('.pull')}}" class="button is-info">
         <span class="icon"><i class="fas fa-plus"></i></span>
         <span>Request a student from another homeroom</span>
       </a>
