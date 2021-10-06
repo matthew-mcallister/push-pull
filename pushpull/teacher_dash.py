@@ -1,3 +1,5 @@
+from functools import wrap
+
 from flask import Blueprint, redirect, render_template, request, session, \
     url_for
 from werkzeug.exceptions import abort
@@ -60,33 +62,47 @@ def pull(teacher_id: int, block_id: int):
     )
 
 
-@bp.route('/<int:teacher_id>/block/<int:block_id>/action/', methods=['POST'])
-def action(teacher_id: int, block_id: int):
-    status = 'success'
-    alert = None
-    if 'approve' in request.form:
-        student_id = int(request.form['approve'])
-        Request.approve(block_id, student_id)
-        alert = f'Approved request (SID {student_id})'
-    elif 'delete' in request.form:
-        student_id = int(request.form['delete'])
-        Request.delete(block_id, student_id)
-        alert = f'Denied request (SID {student_id})'
-    elif 'pull' in request.form:
-        student_id = int(request.form['pull'])
-        Student.pull(student_id, teacher_id, block_id)
-        alert = f'Pull requested (SID {student_id})'
-    elif 'push' in request.form:
-        if not request.form['teacher']:
-            status = 'info'
-            alert = 'You must select a teacher to push to.'
-        else:
-            student_id = int(request.form['push'])
-            dst_teacher_id = int(request.form['teacher'])
-            Student.push(student_id, dst_teacher_id, block_id)
-            alert = f'Push requested (SID {student_id})'
-    session['status'] = status
-    if alert:
-        session['alert'] = alert
-    url = url_for('.dash', teacher_id=teacher_id, block_id=block_id)
-    return redirect(url, code=303)
+def teacher_action(f):
+    @wraps(f)
+    def inner(*args, **kwargs):
+        teacher_id = args[0]
+        block_id = args[1]
+        session['status'] = 'success'
+        # TODO: handle exceptions?
+        f(teacher_id, block_id, *args, **kwargs)
+        url = url_for('.dash', teacher_id=teacher_id, block_id=block_id)
+        return redirect(url, code=303)
+    return inner
+
+
+@bp.route('/<int:teacher_id>/block/<int:block_id>/action/approve/<int:student_id>', methods=['POST'])
+@teacher_action
+def approve_action(teacher_id: int, block_id: int, student_id: int):
+    Request.approve(block_id, student_id)
+    session['alert'] = f'Approved request (SID {student_id})'
+
+
+@bp.route('/<int:teacher_id>/block/<int:block_id>/action/delete/<int:student_id>', methods=['POST'])
+@teacher_action
+def delete_action(teacher_id: int, block_id: int, student_id: int):
+    Request.delete(block_id, student_id)
+    session['alert'] = f'Denied request (SID {student_id})'
+
+
+@bp.route('/<int:teacher_id>/block/<int:block_id>/action/approve/<int:student_id>', methods=['POST'])
+@teacher_action
+def pull_action(teacher_id: int, block_id: int, student_id: int):
+    Student.pull(student_id, teacher_id, block_id)
+    session['alert'] = f'Pull requested (SID {student_id})'
+
+
+@bp.route('/<int:teacher_id>/block/<int:block_id>/action/push/<int:student_id>/dest/<int:dest_teacher_id>', methods=['POST'])
+@teacher_action
+def push_action(
+    teacher_id: int,
+    block_id: int,
+    student_id: int,
+    dest_teacher_id: int,
+):
+    Student.push(student_id, dest_teacher_id, block_id)
+    session['alert'] = f'Push requested (SID {student_id})'

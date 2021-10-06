@@ -59,7 +59,7 @@
                 {% endif %}
               </td>
               <td>
-                <form action="{{teacher_view('.action')}}" method="post">
+                <form method="post">
                   {% if request %}
                     <div class="field has-addons">
                       {% if request.destination_teacher == current_teacher %}
@@ -97,12 +97,7 @@
                             <a class="button is-small is-info is-light">Needs approval</a>
                           </div>
                           <div class="control">
-                            <button
-                              type="submit"
-                              name="approve"
-                              value="{{student.id}}"
-                              class="button is-small is-success is-outlined"
-                            >
+                            <button type="submit" class="button is-small is-success is-outlined">
                               <span class="icon"><i class="fas fa-check"></i></span>
                             </button>
                           </div>
