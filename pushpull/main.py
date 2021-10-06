@@ -11,5 +11,5 @@ def home():
     return render_template(
         'home.html',
         block=Block.upcoming()[0],
-        teachers=Teacher.query.all(),
+        teachers=Teacher.all_by_name(),
     )

@@ -16,6 +16,10 @@ class Teacher(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(60), unique=True, nullable=False)
 
+    @staticmethod
+    def all_by_name():
+        return Teacher.query.order_by(Teacher.name.asc()).all()
+
 
 class Student(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
