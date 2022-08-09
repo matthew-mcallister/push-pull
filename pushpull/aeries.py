@@ -37,8 +37,7 @@ def sync_command():
     click.echo('Pulling teacher info from Aeries...')
     staff = {s['ID']: s for s in get_endpoint('staff')}
     teachers = [t for t in do_get('teachers') if not t['InactiveStatusCode']]
-    #for tch in teachers:
-    for tch in ():
+    for tch in teachers:
         staff_id = tch['StaffID1']
         try:
             stf = staff[staff_id]
