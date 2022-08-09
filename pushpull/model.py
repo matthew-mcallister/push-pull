@@ -12,9 +12,9 @@ db = SQLAlchemy()
 
 
 class Teacher(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(60), unique=True, nullable=False)
+    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
+    name: str = db.Column(db.String(120), nullable=False)
+    email: str = db.Column(db.String(60), unique=True, nullable=False)
 
     @staticmethod
     def all_by_name():
@@ -22,12 +22,12 @@ class Teacher(db.Model):
 
 
 class Student(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    first_name = db.Column(db.String(60), nullable=False)
-    last_name = db.Column(db.String(60), nullable=False)
-    home_teacher_id = db.Column(db.String(60), db.ForeignKey('teacher.id'),
+    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
+    first_name: str = db.Column(db.String(60), nullable=False)
+    last_name: str = db.Column(db.String(60), nullable=False)
+    home_teacher_id: int = db.Column(db.Integer, db.ForeignKey('teacher.id'),
         nullable=False)
-    home_teacher = db.relationship('Teacher', lazy=False)
+    home_teacher: Teacher = db.relationship('Teacher', lazy=False)
 
     @property
     def name(self):
@@ -59,8 +59,8 @@ class Student(db.Model):
 
 
 class Block(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
+    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
+    start_time: datetime = db.Column(db.DateTime, nullable=False)
 
     @staticmethod
     def upcoming():
@@ -81,18 +81,18 @@ class Requester(enum.Enum):
 
 
 class Request(db.Model):
-    block_id = db.Column(db.Integer, db.ForeignKey('block.id'),
+    block_id: int = db.Column(db.Integer, db.ForeignKey('block.id'),
         nullable=False, primary_key=True)
-    block = db.relationship('Block')
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'),
+    block: Block = db.relationship('Block')
+    student_id: int = db.Column(db.Integer, db.ForeignKey('student.id'),
         nullable=False, primary_key=True)
-    student = db.relationship('Student', lazy=False)
-    destination_teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'),
+    student: Student = db.relationship('Student', lazy=False)
+    destination_teacher_id: int = db.Column(db.Integer, db.ForeignKey('teacher.id'),
         nullable=False)
-    destination_teacher = db.relationship('Teacher', lazy=False)
-    submitted_at = db.Column(db.DateTime, nullable=False)
+    destination_teacher: Teacher = db.relationship('Teacher', lazy=False)
+    submitted_at: datetime = db.Column(db.DateTime, nullable=False)
     requester_code = db.Column(db.Enum(Requester), nullable=False)
-    approved_at = db.Column(db.DateTime)
+    approved_at: datetime = db.Column(db.DateTime)
 
     @property
     def requester(self):

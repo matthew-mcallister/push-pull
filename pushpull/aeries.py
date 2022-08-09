@@ -37,7 +37,8 @@ def sync_command():
     click.echo('Pulling teacher info from Aeries...')
     staff = {s['ID']: s for s in get_endpoint('staff')}
     teachers = [t for t in do_get('teachers') if not t['InactiveStatusCode']]
-    for tch in teachers:
+    #for tch in teachers:
+    for tch in ():
         staff_id = tch['StaffID1']
         try:
             stf = staff[staff_id]
@@ -53,6 +54,10 @@ def sync_command():
     db.session.commit()
     click.echo(f'Imported {len(teachers)} teachers.')
 
+    # Skip invalid teacher IDs
+    teachers: list[Teacher] = Teacher.query.all()
+    valid_teacher_ids = {teacher.id for teacher in teachers}
+
     click.echo('Pulling student info from Aeries...')
     students = {s['StudentID']: s for s in do_get('students')}
     sections = {s['SectionNumber']: s for s in do_get('sections')}
@@ -60,7 +65,13 @@ def sync_command():
     for klass in filter(lambda k: k['CourseID'] == HOME_COURSE_ID, classes):
         stu = students[klass['StudentID']]
         section = sections[klass['SectionNumber']]
-        teacher_id = section['SectionStaffMembers'][0]['StaffID']
+        try:
+            teacher_id = section['SectionStaffMembers'][0]['StaffID']
+            if teacher_id not in valid_teacher_ids:
+                raise KeyError
+        except (KeyError, IndexError):
+            click.echo(f'invalid section {section["SectionNumber"]}', err=True)
+            continue
         db.session.merge(Student(
             id=stu['StudentID'],
             first_name=stu['FirstName'],

@@ -1,7 +1,7 @@
 import os
 
+from dotenv import load_dotenv
 from flask import Flask
-from flask import render_template
 
 
 def create_app():
@@ -13,6 +13,8 @@ def create_app():
     `instance/`).
     """
     app = Flask(__name__, instance_relative_config=True)
+
+    load_dotenv()
 
     db_url = os.getenv('DATABASE_URL')
     if db_url.startswith("postgres://"):
