@@ -1,10 +1,13 @@
 import os
+from typing import Any
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask import request
+from flask import Response
 
 
-def create_app():
+def create_app() -> Flask:
     """Initializes the application.
 
     Config variables can be overridden in testing by passing a mapping
@@ -16,7 +19,7 @@ def create_app():
 
     load_dotenv()
 
-    db_url = os.getenv('DATABASE_URL')
+    db_url = os.environ['DATABASE_URL']
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
 
@@ -40,6 +43,21 @@ def create_app():
 
     app.register_blueprint(main.bp)
     app.register_blueprint(teacher_dash.bp)
+
+    @app.before_request
+    def auth() -> Any:
+        required_password = os.getenv('HTTP_PASSWORD')
+        if not required_password:
+            return
+
+        def fail() -> Any:
+            resp = Response('Authorization required', 401)
+            resp.headers['WWW-Authenticate'] = 'Basic'
+            return resp
+
+        auth = request.authorization
+        if not auth or not auth.password or auth.password != required_password:
+            return fail()
 
     return app
 

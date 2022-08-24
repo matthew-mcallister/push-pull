@@ -5,7 +5,7 @@ import click
 import pytz
 from flask import current_app
 from flask.cli import with_appcontext
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy  # type: ignore
 
 
 db = SQLAlchemy()
