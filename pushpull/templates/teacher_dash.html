@@ -4,6 +4,10 @@
   {{current_teacher.name}} - {{format_block_time(block)}}
 {% endblock %}
 
+{% block head %}
+  <meta http-equiv="refresh" content="30">
+{% endblock %}
+
 {# Strikes out text if the student is leaving this classroom #}
 {% macro strike_outgoing(text, student, request) %}
   {% if request and request.destination_teacher != current_teacher %}
