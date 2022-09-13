@@ -26,6 +26,26 @@ def school_endpoint(school_code, endpoint):
     return endpoint(f'schools/{school_code}/{endpoint}')
 
 
+@click.command('dump')
+@with_appcontext
+def dump_command():
+    """Debugging command which dumps data from Aeries into JSON files."""
+    import json
+    import os
+    do_get = lambda e: get_endpoint('schools', SCHOOL_ID, e)
+    staff = get_endpoint('staff')
+    teachers = do_get('teachers')
+    students = do_get('students')
+    sections = do_get('sections')
+    classes = do_get('classes')
+    dump = lambda d, p: json.dump(d, open(os.path.expanduser(p), 'w'))
+    dump(staff, '~/staff.json')
+    dump(teachers, '~/teachers.json')
+    dump(students, '~/students.json')
+    dump(sections, '~/sections.json')
+    dump(classes, '~/classes.json')
+
+
 @click.command('sync')
 @with_appcontext
 def sync_command():
@@ -84,4 +104,5 @@ def sync_command():
 
 
 def register_commands(app):
+    app.cli.add_command(dump_command)
     app.cli.add_command(sync_command)
