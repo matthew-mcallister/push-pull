@@ -3,11 +3,12 @@ from typing import Any
 
 from dotenv import load_dotenv
 from flask import Flask
+from flask import render_template
 from flask import request
 from flask import Response
 
 
-def create_app() -> Flask:
+def _create_app() -> Flask:
     """Initializes the application.
 
     Config variables can be overridden in testing by passing a mapping
@@ -58,6 +59,16 @@ def create_app() -> Flask:
         auth = request.authorization
         if not auth or not auth.password or auth.password != required_password:
             return fail()
+
+    return app
+
+
+def create_app() -> Flask:
+    app = Flask(__name__, instance_relative_config=True)
+
+    @app.route('/')
+    def redirect():
+        return render_template('redirect.html')
 
     return app
 
