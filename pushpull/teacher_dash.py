@@ -1,4 +1,3 @@
-from flask import abort
 from flask import Blueprint
 from flask import redirect
 from flask import render_template
@@ -14,12 +13,8 @@ bp = Blueprint('teacher_dash', __name__, url_prefix='/teacher')
 
 @bp.route('/<int:teacher_id>/block/<int:block_id>/')
 def dash(teacher_id: int, block_id: int):
-    current_teacher = session.query(Teacher).get(teacher_id)
-    if not current_teacher:
-        abort(404)
-    block = session.query(Block).get(block_id)
-    if not block:
-        abort(404)
+    current_teacher = Teacher.get(teacher_id)
+    block = Block.get(block_id)
     blocks = Block.upcoming()
     entries = session.query(Student) \
         .outerjoin(Request, (Request.student_id == Student.id) &
@@ -37,7 +32,7 @@ def dash(teacher_id: int, block_id: int):
         entries=entries,
         alert=flask_session.get('alert'),
         status=flask_session.get('status'),
-        teachers=session.query(Teacher).all(),
+        teachers=Teacher.all_by_name(),
     )
     flask_session.clear()
     return result
@@ -45,12 +40,8 @@ def dash(teacher_id: int, block_id: int):
 
 @bp.route('/<int:teacher_id>/block/<int:block_id>/pull/')
 def pull(teacher_id: int, block_id: int):
-    current_teacher = session.query(Teacher).get(teacher_id)
-    if not current_teacher:
-        abort(404)
-    block = session.query(Block).get(block_id)
-    if not block:
-        abort(404)
+    current_teacher = Teacher.get(teacher_id)
+    block = Block.get(block_id)
     query = session.query(Student, Request) \
         .outerjoin(Request, (Request.student_id == Student.id) &
             (Request.block_id == block_id)) \
