@@ -1,11 +1,10 @@
 import os
 
 import click
-from flask import current_app
 from flask.cli import with_appcontext
 import requests
 
-from pushpull.model import Student, Teacher, db
+from pushpull.model import Student, Teacher, session
 
 
 AERIES_CERT = os.getenv('AERIES_CERT')
@@ -65,12 +64,12 @@ def sync_command():
             name = tch['DisplayName']
             click.echo(f'invalid staff id {staff_id} for {name}', err=True)
             continue
-        db.session.merge(Teacher(
+        session.merge(Teacher(
             id=staff_id,
             email=stf['EmailAddress'],
             name=f"{stf['FirstName']} {stf['LastName']}",
         ))
-    db.session.commit()
+    session.commit()
     click.echo(f'Imported {len(teachers)} teachers.')
 
     # Skip invalid teacher IDs
@@ -91,7 +90,7 @@ def sync_command():
         except (KeyError, IndexError):
             click.echo(f'invalid section {section["SectionNumber"]}', err=True)
             continue
-        db.session.merge(Student(
+        session.merge(Student(
             id=stu['StudentID'],
             first_name=stu['FirstName'],
             last_name=stu['LastName'],
@@ -99,7 +98,7 @@ def sync_command():
         ))
     click.echo(f'Imported {len(students)} students.')
 
-    db.session.commit()
+    session.commit()
     click.echo('Success.')
 
 

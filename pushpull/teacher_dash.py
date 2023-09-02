@@ -1,6 +1,10 @@
-from flask import Blueprint, redirect, render_template, request, session, \
-    url_for
-from werkzeug.exceptions import abort
+from flask import abort
+from flask import Blueprint
+from flask import redirect
+from flask import render_template
+from flask import request
+from flask import session as flask_session
+from flask import url_for
 
 from pushpull.model import *
 
@@ -10,10 +14,14 @@ bp = Blueprint('teacher_dash', __name__, url_prefix='/teacher')
 
 @bp.route('/<int:teacher_id>/block/<int:block_id>/')
 def dash(teacher_id: int, block_id: int):
-    current_teacher = Teacher.query.get_or_404(teacher_id)
-    block = Block.query.get_or_404(block_id)
+    current_teacher = session.query(Teacher).get(teacher_id)
+    if not current_teacher:
+        abort(404)
+    block = session.query(Block).get(block_id)
+    if not block:
+        abort(404)
     blocks = Block.upcoming()
-    entries = Student.query \
+    entries = session.query(Student) \
         .outerjoin(Request, (Request.student_id == Student.id) &
             (Request.block_id == block_id)) \
         .filter((Student.home_teacher_id == teacher_id) |
@@ -27,19 +35,23 @@ def dash(teacher_id: int, block_id: int):
         block=block,
         blocks=blocks,
         entries=entries,
-        alert=session.get('alert'),
-        status=session.get('status'),
-        teachers=Teacher.query.all(),
+        alert=flask_session.get('alert'),
+        status=flask_session.get('status'),
+        teachers=session.query(Teacher).all(),
     )
-    session.clear()
+    flask_session.clear()
     return result
 
 
 @bp.route('/<int:teacher_id>/block/<int:block_id>/pull/')
 def pull(teacher_id: int, block_id: int):
-    current_teacher = Teacher.query.get_or_404(teacher_id)
-    block = Block.query.get_or_404(block_id)
-    query = db.session.query(Student, Request) \
+    current_teacher = session.query(Teacher).get(teacher_id)
+    if not current_teacher:
+        abort(404)
+    block = session.query(Block).get(block_id)
+    if not block:
+        abort(404)
+    query = session.query(Student, Request) \
         .outerjoin(Request, (Request.student_id == Student.id) &
             (Request.block_id == block_id)) \
         .filter(Student.home_teacher_id != teacher_id) \
@@ -85,8 +97,8 @@ def action(teacher_id: int, block_id: int):
             dst_teacher_id = int(request.form['teacher'])
             Student.push(student_id, dst_teacher_id, block_id)
             alert = f'Push requested (SID {student_id})'
-    session['status'] = status
+    flask_session['status'] = status
     if alert:
-        session['alert'] = alert
+        flask_session['alert'] = alert
     url = url_for('.dash', teacher_id=teacher_id, block_id=block_id)
     return redirect(url, code=303)

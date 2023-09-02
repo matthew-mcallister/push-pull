@@ -1,33 +1,58 @@
 import enum
 from datetime import datetime
 
-import click
 import pytz
-from flask import current_app
-from flask.cli import with_appcontext
-from flask_sqlalchemy import SQLAlchemy  # type: ignore
+import sqlalchemy as sa
+from flask import request
+from sqlalchemy import orm
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
+
+from pushpull.app import app
 
 
-db = SQLAlchemy()
+def _request_id() -> int:
+    return id(request._get_current_object())  # type: ignore[attr-defined]
 
 
-class Teacher(db.Model):
-    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
-    name: str = db.Column(db.String(120), nullable=False)
-    email: str = db.Column(db.String(60), unique=True, nullable=False)
+engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+factory = orm.sessionmaker(bind=engine)
+session = orm.scoped_session(factory, scopefunc=_request_id)
+
+@app.teardown_request
+def shutdown_session(*args, **kwargs):
+    session.remove()
+
+
+base = declarative_base()
+
+
+BaseModel = base
+
+
+class Teacher(BaseModel):
+    __tablename__ = 'teacher'
+
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(sa.String(120))
+    email: Mapped[str] = mapped_column(sa.String(60), unique=True)
 
     @staticmethod
     def all_by_name():
-        return Teacher.query.order_by(Teacher.name.asc()).all()
+        return session.query(Teacher).order_by(Teacher.name.asc()).all()
 
 
-class Student(db.Model):
-    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
-    first_name: str = db.Column(db.String(60), nullable=False)
-    last_name: str = db.Column(db.String(60), nullable=False)
-    home_teacher_id: int = db.Column(db.Integer, db.ForeignKey('teacher.id'),
-        nullable=False)
-    home_teacher: Teacher = db.relationship('Teacher', lazy=False)
+class Student(BaseModel):
+    __tablename__ = 'student'
+
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    first_name: Mapped[str] = mapped_column(sa.String(60))
+    last_name: Mapped[str] = mapped_column(sa.String(60))
+    home_teacher_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey('teacher.id'))
+    home_teacher: Mapped[Teacher] = relationship(lazy=False)
 
     @property
     def name(self):
@@ -35,7 +60,7 @@ class Student(db.Model):
 
     @staticmethod
     def pull(student_id: int, teacher_id: int, block_id: int):
-        db.session.add(Request(
+        session.add(Request(
             block_id=block_id,
             student_id=student_id,
             destination_teacher_id=teacher_id,
@@ -43,11 +68,11 @@ class Student(db.Model):
             requester_code=Requester.dst,
             approved_at=None,
         ))
-        db.session.commit()
+        session.commit()
 
     @staticmethod
     def push(student_id: int, teacher_id: int, block_id: int):
-        db.session.add(Request(
+        session.add(Request(
             block_id=block_id,
             student_id=student_id,
             destination_teacher_id=teacher_id,
@@ -55,19 +80,21 @@ class Student(db.Model):
             requester_code=Requester.src,
             approved_at=None,
         ))
-        db.session.commit()
+        session.commit()
 
 
-class Block(db.Model):
-    id: int = db.Column(db.Integer, nullable=False, primary_key=True)
-    start_time: datetime = db.Column(db.DateTime, nullable=False)
+class Block(BaseModel):
+    __tablename__ = 'block'
+
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    start_time: Mapped[datetime] = mapped_column(sa.DateTime)
 
     @staticmethod
     def upcoming():
         tz = pytz.timezone('US/Pacific')
         now = datetime.now(pytz.utc).astimezone(tz)
         midnight = datetime.combine(now.date(), datetime.min.time(), tz)
-        return Block.query \
+        return session.query(Block) \
             .filter(Block.start_time >= midnight) \
             .order_by(Block.start_time.asc()) \
             .limit(10) \
@@ -80,19 +107,21 @@ class Requester(enum.Enum):
     auto = enum.auto()
 
 
-class Request(db.Model):
-    block_id: int = db.Column(db.Integer, db.ForeignKey('block.id'),
-        nullable=False, primary_key=True)
-    block: Block = db.relationship('Block')
-    student_id: int = db.Column(db.Integer, db.ForeignKey('student.id'),
-        nullable=False, primary_key=True)
-    student: Student = db.relationship('Student', lazy=False)
-    destination_teacher_id: int = db.Column(db.Integer, db.ForeignKey('teacher.id'),
-        nullable=False)
-    destination_teacher: Teacher = db.relationship('Teacher', lazy=False)
-    submitted_at: datetime = db.Column(db.DateTime, nullable=False)
-    requester_code = db.Column(db.Enum(Requester), nullable=False)
-    approved_at: datetime = db.Column(db.DateTime)
+class Request(BaseModel):
+    __tablename__ = 'request'
+
+    block_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey('block.id'), primary_key=True)
+    block: Mapped[Block] = relationship()
+    student_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey('student.id'), primary_key=True)
+    student: Mapped[Student] = relationship(lazy=False)
+    destination_teacher_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey('teacher.id'))
+    destination_teacher: Mapped[Teacher] = relationship(lazy=False)
+    submitted_at: Mapped[datetime] = mapped_column(sa.DateTime)
+    requester_code: Mapped[Requester] = mapped_column(sa.Enum(Requester))
+    approved_at: Mapped[datetime] = mapped_column(sa.DateTime)
 
     @property
     def requester(self):
@@ -118,28 +147,15 @@ class Request(db.Model):
 
     @staticmethod
     def approve(block_id: int, student_id: int):
-        db.session.query(Request) \
+        session.query(Request) \
             .filter_by(block_id=block_id, student_id=student_id) \
             .update({'approved_at': datetime.now(pytz.utc)})
-        db.session.commit()
+        session.commit()
 
     # TODO: Soft deletion
     @staticmethod
     def delete(block_id: int, student_id: int):
-        db.session.query(Request) \
+        session.query(Request) \
             .filter_by(block_id=block_id, student_id=student_id) \
             .delete()
-        db.session.commit()
-
-
-@click.command('init-db')
-@with_appcontext
-def init_db_command():
-    uri = current_app.config['SQLALCHEMY_DATABASE_URI']
-    click.echo(f"Initializing '{uri}'...")
-    db.create_all()
-    click.echo('Success.')
-
-
-def register_commands(app):
-    app.cli.add_command(init_db_command)
+        session.commit()
