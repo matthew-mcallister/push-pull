@@ -1,1 +1,1 @@
-web: python3 -m pushpull.app
+web: python3 -m pushpull.main
