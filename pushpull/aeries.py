@@ -1,9 +1,9 @@
 import os
 
 import click
-from flask.cli import with_appcontext
 import requests
 
+from pushpull.app import app
 from pushpull.model import Student, Teacher, session
 
 
@@ -15,6 +15,7 @@ HOME_COURSE_ID = '2604'
 
 
 def get_endpoint(*components):
+    assert AERIES_CERT
     headers = {'AERIES-CERT': AERIES_CERT}
     endpoint = '/'.join(map(str, components))
     url = f'{AERIES_API_BASE}/api/v5/{endpoint}'
@@ -25,8 +26,7 @@ def school_endpoint(school_code, endpoint):
     return endpoint(f'schools/{school_code}/{endpoint}')
 
 
-@click.command('dump')
-@with_appcontext
+@app.cli.command('dump')
 def dump_command():
     """Debugging command which dumps data from Aeries into JSON files."""
     import json
@@ -45,8 +45,7 @@ def dump_command():
     dump(classes, '~/classes.json')
 
 
-@click.command('sync')
-@with_appcontext
+@app.cli.command('sync')
 def sync_command():
     click.echo('Performing Aeries data sync.')
 
@@ -73,7 +72,7 @@ def sync_command():
     click.echo(f'Imported {len(teachers)} teachers.')
 
     # Skip invalid teacher IDs
-    teachers: list[Teacher] = Teacher.query.all()
+    teachers: list[Teacher] = session.query(Teacher).all()
     valid_teacher_ids = {teacher.id for teacher in teachers}
 
     click.echo('Pulling student info from Aeries...')
@@ -100,8 +99,3 @@ def sync_command():
 
     session.commit()
     click.echo('Success.')
-
-
-def register_commands(app):
-    app.cli.add_command(dump_command)
-    app.cli.add_command(sync_command)

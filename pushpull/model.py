@@ -16,13 +16,9 @@ from sqlalchemy.orm import relationship
 from pushpull.app import app
 
 
-def _request_id() -> int:
-    return id(request._get_current_object())  # type: ignore[attr-defined]
-
-
 engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 factory = orm.sessionmaker(bind=engine)
-session = orm.scoped_session(factory, scopefunc=_request_id)
+session = orm.scoped_session(factory)
 
 @app.teardown_request
 def shutdown_request(*args, **kwargs):

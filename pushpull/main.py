@@ -1,5 +1,6 @@
 import os
 
+import pushpull.aeries
 from pushpull.app import app
 from pushpull.filters import register_filters
 from pushpull.routes.main import bp as main_bp
