@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask import request
 from flask import Response
+from flask import abort
+
+from pushpull import errors
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -40,3 +43,8 @@ def auth() -> Any:
     auth = request.authorization
     if not auth or not auth.password or auth.password != required_password:
         return fail()
+
+
+@app.errorhandler(errors.ErrorBase)
+def handle_error(e: errors.ErrorBase):
+    abort(e.status_code)

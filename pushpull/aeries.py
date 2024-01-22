@@ -3,8 +3,9 @@ import os
 import click
 import requests
 
+from pushpull import errors
 from pushpull.app import app
-from pushpull.model import Student, Teacher, session
+from pushpull.model import Assignment, Period, Student, Teacher, session
 
 
 AERIES_CERT = os.getenv('AERIES_CERT')
@@ -38,11 +39,11 @@ def dump_command():
     sections = do_get('sections')
     classes = do_get('classes')
     dump = lambda d, p: json.dump(d, open(os.path.expanduser(p), 'w'))
-    dump(staff, '~/staff.json')
-    dump(teachers, '~/teachers.json')
-    dump(students, '~/students.json')
-    dump(sections, '~/sections.json')
-    dump(classes, '~/classes.json')
+    dump(staff, '/tmp/staff.json')
+    dump(teachers, '/tmp/teachers.json')
+    dump(students, '/tmp/students.json')
+    dump(sections, '/tmp/sections.json')
+    dump(classes, '/tmp/classes.json')
 
 
 @app.cli.command('sync')
@@ -73,7 +74,6 @@ def sync_command():
 
     # Skip invalid teacher IDs
     teachers: list[Teacher] = session.query(Teacher).all()
-    valid_teacher_ids = {teacher.id for teacher in teachers}
 
     click.echo('Pulling student info from Aeries...')
     students = {s['StudentID']: s for s in do_get('students')}
@@ -83,17 +83,22 @@ def sync_command():
         stu = students[klass['StudentID']]
         section = sections[klass['SectionNumber']]
         try:
+            period = Period.get_by_name(section['Period'])
             teacher_id = section['SectionStaffMembers'][0]['StaffID']
-            if teacher_id not in valid_teacher_ids:
-                raise KeyError
-        except (KeyError, IndexError):
-            click.echo(f'invalid section {section["SectionNumber"]}', err=True)
+            Teacher.get(teacher_id)
+        except (KeyError, IndexError, errors.NoSuchResource) as e:
+            click.echo(f'invalid section {section["SectionNumber"]}: {e}', err=True)
             continue
-        session.merge(Student(
+        student = Student(
             id=stu['StudentID'],
             first_name=stu['FirstName'],
             last_name=stu['LastName'],
-            home_teacher_id=teacher_id,
+        )
+        session.merge(student)
+        session.merge(Assignment(
+            student_id=student.id,
+            period_id=period.id,
+            teacher_id=teacher_id,
         ))
     click.echo(f'Imported {len(students)} students.')
 

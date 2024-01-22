@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import enum
 from datetime import datetime
+from datetime import date
 
 import pytz
 import sqlalchemy as sa
-from flask import abort
-from flask import request
-from sqlalchemy import orm
+from sqlalchemy import MetaData, UniqueConstraint, orm
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
 from pushpull.app import app
+from pushpull import errors
 
 
 engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
@@ -25,9 +25,17 @@ def shutdown_request(*args, **kwargs):
     session.remove()
 
 
-base = declarative_base()
-
-
+base = declarative_base(
+    metadata=MetaData(
+        naming_convention={
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s",
+            "ck": "ck_%(table_name)s_%(constraint_name)s",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        },
+    ),
+)
 BaseModel = base
 
 
@@ -43,7 +51,7 @@ class Teacher(BaseModel):
     def get(id: int) -> Teacher:
         teacher = session.query(Teacher).get(id)
         if not teacher:
-            abort(404)
+            raise errors.NoSuchResource(f'No teacher with ID {id}')
         return teacher
 
     @staticmethod
@@ -62,9 +70,11 @@ class Student(BaseModel):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(sa.String(60))
     last_name: Mapped[str] = mapped_column(sa.String(60))
-    home_teacher_id: Mapped[int] = mapped_column(
-        sa.Integer, sa.ForeignKey('teacher.id'))
-    home_teacher: Mapped[Teacher] = relationship(lazy=False)
+
+    assignments: Mapped[list[Assignment]] = relationship(back_populates='student')
+
+    def __repr__(self) -> str:
+        return f'<Student {self.id} "{self.name}">'
 
     @property
     def name(self) -> str:
@@ -74,7 +84,7 @@ class Student(BaseModel):
     def get(id: int) -> Student:
         student = session.query(Student).get(id)
         if not student:
-            abort(404)
+            raise errors.NoSuchResource(f'No student with ID {id}')
         return student
 
     @staticmethod
@@ -102,27 +112,76 @@ class Student(BaseModel):
         session.commit()
 
 
+class Period(BaseModel):
+    __tablename__ = 'period'
+
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(sa.String(20))
+
+    def __repr__(self) -> str:
+        return self.name
+
+    @staticmethod
+    def get_by_name(name: str) -> Period:
+        period = session.query(Period).filter_by(name=name).first()
+        if not period:
+            raise errors.NoSuchResource(f'No period named {name}')
+        return period
+
+
+class Assignment(BaseModel):
+    __tablename__ = 'assignment'
+
+    student_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('student.id'), primary_key=True)
+    student: Mapped[Student] = relationship(back_populates='assignments')
+    period_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('period.id'), primary_key=True)
+    period: Mapped[Period] = relationship()
+    teacher_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('teacher.id'))
+    teacher: Mapped[Teacher] = relationship(lazy=False)
+
+    @staticmethod
+    def get(student: Student, period: Period) -> Assignment:
+        asn = session.query(Assignment).get((student, period))
+        if not asn:
+            raise errors.NoSuchResource(f'No assignment for {student}, period {period}')
+        return asn
+
+
 class Block(BaseModel):
     __tablename__ = 'block'
 
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
-    start_time: Mapped[datetime] = mapped_column(sa.DateTime)
+    day: Mapped[date] = mapped_column(sa.Date)
+    period_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey('period.id'))
+    period: Mapped[Period] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint(day, period_id),
+    )
+
+    def __repr__(self) -> str:
+        return f'<Block {self.id} "{self.day.strftime("%Y-%m-%d")} {self.period}">'
 
     @staticmethod
     def get(id: int) -> Block:
         block = session.query(Block).get(id)
         if not block:
-            abort(404)
+            raise errors.NoSuchResource(f'No block {id}')
+        return block
+
+    @staticmethod
+    def get_by_day_and_period(day: date, period: Period) -> Block:
+        block = session.query(Block).filter_by(day=day, period=period).first()
+        if not block:
+            raise errors.NoSuchResource(f'No block for {day}, period {period}')
         return block
 
     @staticmethod
     def upcoming() -> list[Block]:
-        tz = pytz.timezone('US/Pacific')
-        now = datetime.now(pytz.utc).astimezone(tz)
-        midnight = datetime.combine(now.date(), datetime.min.time(), tz)
+        today = date.today()
         return session.query(Block) \
-            .filter(Block.start_time >= midnight) \
-            .order_by(Block.start_time.asc()) \
+            .filter(Block.day >= today) \
+            .order_by(Block.day.asc(), Block.period_id.asc()) \
             .limit(10) \
             .all()
 
@@ -153,13 +212,13 @@ class Request(BaseModel):
     def get(id: int) -> Request:
         request = session.query(Request).get(id)
         if not request:
-            abort(404)
+            raise errors.NoSuchResource(f'No request with ID {id}')
         return request
 
     @property
     def requester(self) -> Teacher | None:
         if self.requester_code == Requester.src:
-            return self.student.home_teacher
+            return self.get_teacher(self.block.period)
         elif self.requester_code == Requester.dst:
             return self.destination_teacher
         else:
@@ -170,7 +229,7 @@ class Request(BaseModel):
         if self.requester_code == Requester.src:
             return self.destination_teacher
         elif self.requester_code == Requester.dst:
-            return self.student.home_teacher
+            return self.get_teacher(self.block.period)
         else:
             return None
 
@@ -185,10 +244,17 @@ class Request(BaseModel):
             .update({'approved_at': datetime.now(pytz.utc)})
         session.commit()
 
-    # TODO: Soft deletion
     @staticmethod
     def delete(block_id: int, student_id: int) -> None:
         session.query(Request) \
             .filter_by(block_id=block_id, student_id=student_id) \
             .delete()
         session.commit()
+
+    @property
+    def assigned_teacher(self) -> Teacher | None:
+        asn = Assignment.get(self.student, self.block.period)
+        if asn:
+            return asn.teacher
+        else:
+            return None

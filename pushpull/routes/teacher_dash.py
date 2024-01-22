@@ -16,14 +16,18 @@ def dash(teacher_id: int, block_id: int):
     current_teacher = Teacher.get(teacher_id)
     block = Block.get(block_id)
     blocks = Block.upcoming()
-    entries = session.query(Student) \
+    entries = (
+        session.query(Student)
         .outerjoin(Request, (Request.student_id == Student.id) &
-            (Request.block_id == block_id)) \
-        .filter((Student.home_teacher_id == teacher_id) |
-            (Request.destination_teacher_id == teacher_id)) \
-        .order_by(Student.last_name) \
-        .add_entity(Request) \
+            (Request.block_id == block_id))
+        .outerjoin(Assignment, (Assignment.student_id == Student.id) &
+            (Assignment.period == block.period))
+        .filter((Assignment.teacher_id == teacher_id) |
+            (Request.destination_teacher_id == teacher_id))
+        .order_by(Student.last_name)
+        .add_entity(Request)
         .all()
+    )
     result = render_template(
         'teacher_dash.html',
         current_teacher=current_teacher,
@@ -42,10 +46,14 @@ def dash(teacher_id: int, block_id: int):
 def pull(teacher_id: int, block_id: int):
     current_teacher = Teacher.get(teacher_id)
     block = Block.get(block_id)
-    query = session.query(Student, Request) \
+    query = (
+        session.query(Student, Request)
         .outerjoin(Request, (Request.student_id == Student.id) &
-            (Request.block_id == block_id)) \
-        .filter(Student.home_teacher_id != teacher_id) \
+            (Request.block_id == block_id))
+        .outerjoin(Assignment, (Assignment.student_id == Student.id) &
+            (Assignment.period == block.period))
+        .filter(Assignment.teacher_id != teacher_id)
+    )
 
     try:
         s = '%' + request.args['search'] + '%'

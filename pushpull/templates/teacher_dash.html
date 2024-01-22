@@ -18,7 +18,7 @@
 {% endmacro %}
 
 {% macro format_block_time(block) %}
-  {{block.start_time|utc_to_local('%A, %d %B, %I:%M%p')}}
+  {{block.day.strftime('%A, %d %B')}} {{block.period}}
 {% endmacro %}
 
 {% macro teacher_view(view) %}
@@ -37,7 +37,7 @@
           {% for b in blocks %}
             <li {% if b == block %}class="is-active"{% endif %}>
               <a href="{{url_for('.dash', teacher_id=current_teacher.id, block_id=b.id)}}">
-                {{b.start_time|utc_to_local('%a, %d %b, %I:%M%p')}}
+                {{format_block_time(b)}}
               </a>
             </li>
           {% endfor %}
@@ -71,7 +71,7 @@
                           <a class="button is-small is-info">From</a>
                         </div>
                         <div class="control">
-                          <a class="button is-small"><b>{{student.home_teacher.name}}</b></a>
+                          <a class="button is-small"><b>{{request.assigned_teacher.name if request.assigned_teacher else 'n/a'}}</b></a>
                         </div>
                       {% else %}
                         <div class="control">
