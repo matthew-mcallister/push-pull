@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
@@ -12,7 +13,8 @@ from pushpull import errors
 
 app = Flask(__name__, instance_relative_config=True)
 
-load_dotenv()
+path = os.getenv('DOTENV')
+load_dotenv(Path(path).resolve() if path else None)
 
 db_url = os.environ['DATABASE_URL']
 if db_url.startswith("postgres://"):

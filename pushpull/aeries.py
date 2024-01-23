@@ -79,6 +79,7 @@ def sync_command():
     students = {s['StudentID']: s for s in do_get('students')}
     sections = {s['SectionNumber']: s for s in do_get('sections')}
     classes = do_get('classes')
+    i = 0
     for klass in filter(lambda k: k['CourseID'] == HOME_COURSE_ID, classes):
         stu = students[klass['StudentID']]
         section = sections[klass['SectionNumber']]
@@ -100,7 +101,8 @@ def sync_command():
             period_id=period.id,
             teacher_id=teacher_id,
         ))
-    click.echo(f'Imported {len(students)} students.')
+        i += 1
+    click.echo(f'Imported {i} students.')
 
     session.commit()
     click.echo('Success.')

@@ -141,7 +141,7 @@ class Assignment(BaseModel):
 
     @staticmethod
     def get(student: Student, period: Period) -> Assignment:
-        asn = session.query(Assignment).get((student, period))
+        asn = session.query(Assignment).get((student.id, period.id))
         if not asn:
             raise errors.NoSuchResource(f'No assignment for {student}, period {period}')
         return asn
