@@ -47,6 +47,12 @@ class Teacher(BaseModel):
     email: Mapped[str] = mapped_column(sa.String(60), unique=True)
     active: Mapped[bool] = mapped_column(sa.Boolean, default=True, server_default='true')
 
+    students: Mapped[list[Student]] = relationship(
+        'Student', secondary='assignment', viewonly=True)
+
+    def __repr__(self) -> str:
+        return f'<Teacher {self.id} "{self.name}">'
+
     @staticmethod
     def get(id: int) -> Teacher:
         teacher = session.query(Teacher).get(id)
@@ -72,6 +78,7 @@ class Student(BaseModel):
     last_name: Mapped[str] = mapped_column(sa.String(60))
 
     assignments: Mapped[list[Assignment]] = relationship(back_populates='student')
+    requests: Mapped[list[Request]] = relationship(back_populates='student', lazy=True)
 
     def __repr__(self) -> str:
         return f'<Student {self.id} "{self.name}">'
@@ -206,7 +213,7 @@ class Request(BaseModel):
     destination_teacher: Mapped[Teacher] = relationship(lazy=False)
     submitted_at: Mapped[datetime] = mapped_column(sa.DateTime)
     requester_code: Mapped[Requester] = mapped_column(sa.Enum(Requester))
-    approved_at: Mapped[datetime] = mapped_column(sa.DateTime)
+    approved_at: Mapped[datetime] = mapped_column(sa.DateTime, nullable=True)
 
     @staticmethod
     def get(id: int) -> Request:
@@ -216,9 +223,21 @@ class Request(BaseModel):
         return request
 
     @property
+    def source_teacher(self) -> Teacher | None:
+        return (
+            session.query(Teacher)
+            .select_from(Request)
+            .filter_by(student_id=self.student_id, block_id=self.block_id)
+            .join(Block, Request.block_id == Block.id)
+            .join(Assignment, sa.and_(Assignment.period_id == Block.period_id, Assignment.student_id == Request.student_id))
+            .join(Teacher, Teacher.id == Assignment.teacher_id)
+            .first()
+        )
+
+    @property
     def requester(self) -> Teacher | None:
         if self.requester_code == Requester.src:
-            return self.get_teacher(self.block.period)
+            return self.source_teacher
         elif self.requester_code == Requester.dst:
             return self.destination_teacher
         else:
@@ -229,7 +248,7 @@ class Request(BaseModel):
         if self.requester_code == Requester.src:
             return self.destination_teacher
         elif self.requester_code == Requester.dst:
-            return self.get_teacher(self.block.period)
+            return self.source_teacher
         else:
             return None
 

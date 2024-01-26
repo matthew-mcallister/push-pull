@@ -104,5 +104,8 @@ def sync_command():
         i += 1
     click.echo(f'Imported {i} students.')
 
+    for teacher in teachers:
+        teacher.active = bool(teacher.students)
+
     session.commit()
     click.echo('Success.')
