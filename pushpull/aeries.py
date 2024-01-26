@@ -72,9 +72,6 @@ def sync_command():
     session.commit()
     click.echo(f'Imported {len(teachers)} teachers.')
 
-    # Skip invalid teacher IDs
-    teachers: list[Teacher] = session.query(Teacher).all()
-
     click.echo('Pulling student info from Aeries...')
     students = {s['StudentID']: s for s in do_get('students')}
     sections = {s['SectionNumber']: s for s in do_get('sections')}
@@ -102,10 +99,15 @@ def sync_command():
             teacher_id=teacher_id,
         ))
         i += 1
+    session.commit()
     click.echo(f'Imported {i} students.')
 
+    # Skip invalid teacher IDs
+    teachers: list[Teacher] = session.query(Teacher).all()
     for teacher in teachers:
         teacher.active = bool(teacher.students)
 
     session.commit()
+    click.echo('Updated active teachers.')
+
     click.echo('Success.')

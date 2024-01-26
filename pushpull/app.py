@@ -13,8 +13,9 @@ from pushpull import errors
 
 app = Flask(__name__, instance_relative_config=True)
 
-path = os.getenv('DOTENV')
-load_dotenv(Path(path).resolve() if path else None)
+path = os.getenv('DOTENV', '.env_development')
+assert path
+load_dotenv(Path(path).resolve())
 
 db_url = os.environ['DATABASE_URL']
 if db_url.startswith("postgres://"):
